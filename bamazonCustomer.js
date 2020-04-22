@@ -1,5 +1,11 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var Table = require("cli-table");
+
+// instantiate
+var table = new Table({
+  head: ['Product Number', 'Item', "Department", "Price", "Quantity Available"]
+});
 
 // create the connection information for the sql database
 var connection = mysql.createConnection({
@@ -19,83 +25,80 @@ var connection = mysql.createConnection({
 // connect to the mysql server and sql database
 connection.connect(function(err) {
   if (err) throw err;
-  //Select all products and return the result object:
+  displayTable();
+  });
+
+  function displayTable(){
+     //Select all products and return the result object:
   connection.query("SELECT * FROM products", function (err, result) {
     if (err) throw err;
-    console.log(result);
+    // console.log(result);
+    for(var i = 0; i<result.length; i++ ){
+      var row = result[i];
+      row = Object.values(row);
+      table.push(row);
+    }
+    console.log(table.toString() + "\n");
+    placeOrder();
+   });
+  }
 
-    // ----------------------------------------------------------------------------------- 
+   function placeOrder() {
+    inquirer
+      .prompt([{
+        name: "item",
+        type: "number",
+        message: "What is the product number for the item you would like to buy? \n", 
+      },
+      {
+        name: "amount",
+        type: "number",
+        message: "How many of this item would you like to order? \n"
+      }])
+      .then(function(answer) {
+        //console.log(answer); 
+        var item = answer.item;
+        var userQty = answer.amount;
+        connection.query("SELECT * FROM products WHERE item_id = " + item, function (err, result) {
+          if (err) throw err;
+          //console.log(result);
+          if (result.length === 0) {
+            console.log ("\nThat product number does not exist\n");
+          } else {
+          var price = result[0].price;
+          var quantity = result[0].stock_quantity;
+          var userItem = result[0].product_name;
+          //console.log(price, quantity);
+          if(userQty<=quantity){
+            console.log("\nThank you for your order of (" + userQty + ") " + userItem + ".\n");
+            console.log("Your order total is: $", price * userQty + "\n");
 
-    function placeOrder() {
-      inquirer
-        .prompt({
-          name: "action",
-          type: "list",
-          message: "What is the item id for the product you would like to buy?",
-          choices: [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10
-          ]
-        })
-        .then(function(answer) {
-          switch (answer.action) {
-          case 1:
-            console.log("You are ordering: Toilet Paper")
-            break;
-    
-          case 2:
-            console.log("You are ordering: Hand Sanitizer")
-            break;
-    
-          case 3:
-            console.log("You are ordering: Clorox wipes")
-            break;
-    
-          case 4:
-            console.log("You are ordering: Hand Soap")
-            break;
-      
-          case 5:
-            console.log("You are ordering: Wine")
-            break;
-      
-          case 6:
-            console.log("You are ordering: Chocolate")
-            break;
+            var query = "UPDATE products SET stock_quantity = stock_quantity - " + userQty + " WHERE item_id = " + item;
+            // console.log(query);
 
-          case 7:
-            console.log("You are ordering: Netflix Subscription")
-            break;
-      
-          case 8:
-            console.log("You are ordering: Puzzles")
-            break;
-        
-          case 9:
-            console.log("You are ordering: Hot Pockets")
-            break;
-        
-          case 10:
-            console.log("You are ordering: Hair Color")
-            break;
-    
-          default:
-            connection.end();
-            break;
-          };
-        });  //end of then.(function(answer) {switch case}
-        //  prompts.next({
-        //   message: "How many would you like to order?"
-        // });
-      }; //end of placeOrder()
-      placeOrder();
-  }); 
-}); // end of connection.connect
+            connection.query(query, function (err, result) {
+              if(err) throw err;
+              // console.log("Quantity updated.");
+
+          inquirer
+          .prompt([{
+          name: "continue",
+          type: "confirm",
+          message: "Would you like to place another order? \n" 
+          }])
+          .then(function(answer){
+            if(answer.continue){
+              displayTable();
+            } else {
+              console.log("\nThank you for your order! See you next time!");
+            }
+          })
+            });
+          } else {
+            console.log("\nYou have chosen a quantity greater than what we have available.");
+          }
+          }
+        });
+     }); 
+   
+    }; //end placeorder function
