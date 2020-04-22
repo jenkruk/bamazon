@@ -1,10 +1,15 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-var Table = require("cli-table");
+var Table = require("cli-table3");
+var chalk = require("chalk");
 
 // instantiate
 var table = new Table({
-  head: ['Product Number', 'Item', "Department", "Price", "Quantity Available"]
+  head: [chalk.blue('Product Number'), chalk.magenta('Item'), chalk.yellow("Department"), chalk.cyan("Price"), chalk.green("Quantity Available")],
+  chars: { 'top': '═' , 'top-mid': '╤' , 'top-left': '╔' , 'top-right': '╗'
+  , 'bottom': '═' , 'bottom-mid': '╧' , 'bottom-left': '╚' , 'bottom-right': '╝'
+  , 'left': '║' , 'left-mid': '╟' , 'mid': '─' , 'mid-mid': '┼'
+  , 'right': '║' , 'right-mid': '╢' , 'middle': '│' }
 });
 
 // create the connection information for the sql database
@@ -35,10 +40,11 @@ connection.connect(function(err) {
     // console.log(result);
     for(var i = 0; i<result.length; i++ ){
       var row = result[i];
+      //changes the objects into an array
       row = Object.values(row);
       table.push(row);
     }
-    console.log(table.toString() + "\n");
+    console.log("\n" + table.toString() + "\n");
     placeOrder();
    });
   }
@@ -48,12 +54,12 @@ connection.connect(function(err) {
       .prompt([{
         name: "item",
         type: "number",
-        message: "What is the product number for the item you would like to buy? \n", 
+        message: "What is the " + chalk.blue("Product Number ") + ("for the ") + chalk.magenta("Item ") + ("you would like to buy? \n"), 
       },
       {
         name: "amount",
         type: "number",
-        message: "How many of this item would you like to order? \n"
+        message: "What " + chalk.green("Quantity ") + "of this " + chalk.magenta("Item ") + "would you like to order? \n",
       }])
       .then(function(answer) {
         //console.log(answer); 
@@ -70,8 +76,8 @@ connection.connect(function(err) {
           var userItem = result[0].product_name;
           //console.log(price, quantity);
           if(userQty<=quantity){
-            console.log("\nThank you for your order of (" + userQty + ") " + userItem + ".\n");
-            console.log("Your order total is: $", price * userQty + "\n");
+            console.log("\nThank you for your order of (" + chalk.green(userQty) + ") " + chalk.magenta(userItem) + ".\n");
+            console.log("Your order total is: " + chalk.cyan("$", price * userQty) + "\n");
 
             var query = "UPDATE products SET stock_quantity = stock_quantity - " + userQty + " WHERE item_id = " + item;
             // console.log(query);
@@ -90,12 +96,13 @@ connection.connect(function(err) {
             if(answer.continue){
               displayTable();
             } else {
-              console.log("\nThank you for your order! See you next time!");
+              console.log(chalk.blueBright("\nThank you for your order! See you next time!"));
             }
           })
             });
           } else {
-            console.log("\nYou have chosen a quantity greater than what we have available.");
+            console.log(chalk.red("\nAlert: ") + chalk.yellowBright("The chosen ") + chalk.greenBright("Quantity ") + chalk.yellowBright("is greater than what is available.\n") + ("\nLet's try again: \n"));
+            placeOrder();
           }
           }
         });
