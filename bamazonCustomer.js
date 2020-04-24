@@ -3,14 +3,6 @@ var inquirer = require("inquirer");
 var Table = require("cli-table3");
 var chalk = require("chalk");
 
-// instantiate
-var table = new Table({
-  head: [chalk.blue('Product Number'), chalk.magenta('Item'), chalk.yellow("Department"), chalk.cyan("Price"), chalk.green("Quantity Available")],
-  chars: { 'top': '═' , 'top-mid': '╤' , 'top-left': '╔' , 'top-right': '╗'
-  , 'bottom': '═' , 'bottom-mid': '╧' , 'bottom-left': '╚' , 'bottom-right': '╝'
-  , 'left': '║' , 'left-mid': '╟' , 'mid': '─' , 'mid-mid': '┼'
-  , 'right': '║' , 'right-mid': '╢' , 'middle': '│' }
-});
 
 // create the connection information for the sql database
 var connection = mysql.createConnection({
@@ -34,6 +26,13 @@ connection.connect(function(err) {
   });
 
   function displayTable(){
+    var table = new Table({
+      head: [chalk.blue('Product Number'), chalk.magenta('Item'), chalk.yellow("Department"), chalk.cyan("Price"), chalk.green("Quantity Available")],
+      chars: { 'top': '═' , 'top-mid': '╤' , 'top-left': '╔' , 'top-right': '╗'
+      , 'bottom': '═' , 'bottom-mid': '╧' , 'bottom-left': '╚' , 'bottom-right': '╝'
+      , 'left': '║' , 'left-mid': '╟' , 'mid': '─' , 'mid-mid': '┼'
+      , 'right': '║' , 'right-mid': '╢' , 'middle': '│' }
+    });
      //Select all products and return the result object:
   connection.query("SELECT * FROM products", function (err, result) {
     if (err) throw err;
@@ -47,7 +46,7 @@ connection.connect(function(err) {
     console.log("\n" + table.toString() + "\n");
     placeOrder();
    });
-  }
+  };
 
    function placeOrder() {
     inquirer
@@ -108,4 +107,4 @@ connection.connect(function(err) {
         });
      }); 
    
-    }; //end placeorder function
+    }; //end placeOrder function

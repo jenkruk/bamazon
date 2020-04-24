@@ -15,13 +15,13 @@ CREATE TABLE products(
 
 -- Insert more than one row at a time
  INSERT INTO products (product_name, department_name, price, stock_quantity)
- VALUES ("Toilet Paper", "Essentials", 12.00, 100), 
- ("Hand Sanitizer", "Essentials", 5.00, 80), 
- ("Clorox Wipes", "Essentials", 8.00, 90), 
- ("Hand Soap", "Essentials", 3.00, 200), 
- ("Wine", "Also Essential", 75.00, 100), 
- ("Chocolates", "Also Essential", 10.00, 300), 
- ("Netflix Subscription", "Also Essential", 14.00, 400), 
- ("Puzzles", "Good to Have's", 10.00, 150), 
- ("Hot Pockets", "Good to Have's", 06.00, 175), 
- ("Hair Color", "Good to Have's", 12.00, 110);
+ VALUES ("Toilet Paper", "Essentials", 12.50, 280),
+ ("Hand Sanitizer", "Essentials", 5.00, 150),
+ ("Clorox Wipes", "Essentials", 8.00, 200),
+ ("Hand Soap", "Essentials", 3.99, 260),
+ ("Wine", "Also Essential", 75.00, 400),
+ ("Chocolates", "Also Essential", 10.75, 300),
+ ("Netflix Subscription", "Also Essential", 14.00, 400),
+ ("Puzzles", "Good to Have's", 10.00, 200),
+ ("Hot Pockets", "Good to Have's", 06.00, 300),
+ ("Hair Color", "Good to Have's", 12.00, 160);
